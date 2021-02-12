@@ -1,0 +1,22 @@
+import stdio
+import m65
+
+const array msg = " ** hello mega 65 ** "scr
+const array stripes = [160,229,245,225,118,106,32,116,117,97,246,234]
+
+volatile byte cia1_todjif    @$DC08
+
+void main(){
+    byte i,t
+    vic4enable();
+    while (true) {
+        for i,0,to,11 {
+            while cia1_todjif==t {}
+            t=cia1_todjif;
+            dmaFill(1000,stripes[i],$1000,4)
+            dmaCopy(21,word(msg.pointer),0,$11EA,4)
+            while vic_raster != $FF {}
+            dmaCopy(1000,$1000,4,$0400,0)
+        }
+    }
+}

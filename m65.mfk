@@ -1,0 +1,54 @@
+struct f018list {
+    byte command
+    word count
+    word sourceAdr
+    byte sourceBank
+    word destAdr
+    byte destBank
+    byte mod1
+    byte mod2
+}
+
+volatile byte m65speed  @$0000
+volatile byte vic4key   @$D02F
+
+volatile byte dma_lo    @$D700
+volatile byte dma_hi    @$D701
+volatile byte dma_bank  @$D702
+volatile byte dma_state @$D703
+
+f018list stdList 
+
+void vic4enable() {
+    vic4key=71
+    vic4key=83
+    m65speed=65
+}
+
+void dmaCopy(word count, word sourceAdr, byte sourceBank, word destAdr, byte destBank) {
+    stdList.count = count
+    stdList.sourceAdr = sourceAdr
+    stdList.sourceBank = sourceBank
+    stdList.destAdr = destAdr
+    stdList.destBank = destBank
+    stdList.command = %00000000     // copy operation
+    stdList.mod1 = 0
+    stdList.mod2 = 0
+    dma_bank = 0;
+    dma_hi = stdList.pointer.hi
+    dma_lo = stdList.pointer.lo
+}
+
+void dmaFill(word count, byte fill, word destAdr, byte destBank) {
+    stdList.count = count
+    stdList.sourceAdr.lo = fill
+    stdList.destAdr = destAdr
+    stdList.destBank = destBank
+    stdList.command = %00000011     // fill operation
+    stdList.mod1 = 0
+    stdList.mod2 = 0
+    dma_bank=0
+    dma_hi=stdList.pointer.hi
+    dma_lo=stdList.pointer.lo       // triggers the dma
+}
+
